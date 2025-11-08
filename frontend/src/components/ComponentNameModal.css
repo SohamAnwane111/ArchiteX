@@ -1,0 +1,48 @@
+.component-name-modal {
+  max-width: 500px;
+  width: 90%;
+}
+
+.component-name-modal .modal-subtitle {
+  color: #666;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.component-name-modal .modal-subtitle strong {
+  color: #333;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.component-name-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+.component-name-input:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.component-name-input::placeholder {
+  color: #999;
+}
+

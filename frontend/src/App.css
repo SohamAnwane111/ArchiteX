@@ -1,0 +1,216 @@
+/* Modern dark theme — refreshed, compact, professional */
+:root{
+  --bg-900:#06070a;
+  --bg-800:#0b0f14;
+  --panel:#0f1724;
+  --muted:#98a2b3;
+  --accent-1:#7c5cff; /* purple */
+  --accent-2:#06b6d4; /* teal */
+  --accent-3:#ffd54f; /* gold */
+  --glass: rgba(255,255,255,0.035);
+  --card-border: rgba(255,255,255,0.04);
+  --white:#eef2ff;
+  --radius:12px;
+  --shadow: 0 6px 20px rgba(2,6,23,0.55);
+  --soft-shadow: 0 4px 12px rgba(2,6,23,0.45);
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Segoe UI Mono";
+}
+
+/* Base */
+* { box-sizing: border-box; }
+html,body,#root { height:100%; }
+body {
+  margin:0;
+  background: linear-gradient(180deg, var(--bg-900), var(--bg-800));
+  color: var(--white);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  font-size:14px;
+}
+
+/* App layout */
+.app {
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Header */
+.app-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 22px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-bottom:1px solid var(--card-border);
+  backdrop-filter: blur(6px);
+}
+.app-header h1 {
+  margin:0;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:18px;
+  font-weight:700;
+  color:var(--white);
+  letter-spacing:0.2px;
+}
+.header-actions {
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+/* Inputs & Buttons */
+.architecture-name-input {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  color:var(--white);
+  border:1px solid var(--card-border);
+  padding:8px 12px;
+  border-radius:10px;
+  min-width:220px;
+  outline:none;
+}
+.architecture-name-input:focus{
+  box-shadow:0 6px 18px rgba(124,92,255,0.12);
+  border-color:var(--accent-1);
+}
+
+/* Buttons */
+.btn {
+  padding:8px 14px;
+  border-radius:10px;
+  border:1px solid transparent;
+  cursor:pointer;
+  font-weight:700;
+  letter-spacing:0.2px;
+}
+.btn-primary {
+  background: linear-gradient(90deg,var(--accent-1),#3b82f6);
+  color:white;
+  box-shadow: 0 6px 18px rgba(124,92,255,0.12);
+  border:1px solid rgba(255,255,255,0.03);
+}
+.btn-secondary {
+  background:transparent;
+  color:var(--white);
+  border:1px solid rgba(255,255,255,0.04);
+  backdrop-filter: blur(6px);
+}
+.btn-danger {
+  background: linear-gradient(90deg,#ef4444,#c02626);
+  color:white;
+}
+
+/* App content regions */
+.app-content {
+  display:flex;
+  flex:1;
+  overflow:hidden;
+  gap:18px;
+  padding:18px;
+}
+
+/* Left palette */
+.component-palette {
+  width:260px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius:var(--radius);
+  padding:14px;
+  border:1px solid var(--card-border);
+  box-shadow: var(--soft-shadow);
+  overflow:auto;
+}
+
+/* Canvas center */
+.canvas-container {
+  flex:1;
+  min-width:0;
+  border-radius:12px;
+  border:1px solid var(--card-border);
+  box-shadow: var(--shadow);
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00)),
+    radial-gradient(circle at 20% 20%, rgba(124,92,255,0.02), transparent 10%),
+    repeating-linear-gradient(transparent 0 24px, rgba(255,255,255,0.01) 24px 25px);
+}
+
+/* Top-left info card */
+.canvas-info {
+  background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid var(--card-border);
+  color:var(--white);
+  box-shadow:0 6px 18px rgba(2,6,23,0.4);
+}
+
+/* Right sidebar */
+.sidebar {
+  width:340px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius:var(--radius);
+  padding:16px;
+  border:1px solid var(--card-border);
+  box-shadow: var(--soft-shadow);
+  overflow:auto;
+}
+
+/* Notifications */
+.notification {
+  position:fixed;
+  top:84px;
+  right:24px;
+  z-index:1100;
+  padding:12px 16px;
+  border-radius:10px;
+  color:white;
+  font-weight:600;
+}
+
+/* Info styles */
+.info-item { font-size:13px; color:var(--muted); }
+.palette-item { margin-bottom:12px; }
+
+/* ReactFlow nodes: make them only show our node content */
+.react-flow__node {
+  background:transparent !important;
+  box-shadow:none !important;
+  border:none !important;
+}
+
+/* ReactFlow controls / minimap and small boxes -> dark */
+.react-flow__minimap {
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 8px 20px rgba(2,6,23,0.6);
+  border-radius: 8px;
+  padding: 6px;
+}
+.react-flow__minimap svg rect {
+  fill: rgba(255,255,255,0.02) !important;
+  stroke: rgba(255,255,255,0.03) !important;
+}
+.react-flow__controls {
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.5);
+  border-radius: 8px;
+}
+.react-flow__attribution {
+  display:none; /* hide small credit box */
+}
+
+/* ensure other small white boxes hide / match dark style */
+.react-flow__node { background: transparent !important; box-shadow:none !important; border:none !important; }
+
+/* add smaller responsive breakpoint */
+@media (max-width: 980px){
+  .component-palette { display:none; }
+  .sidebar { display:none; }
+  .app-content { padding:12px; }
+}
+

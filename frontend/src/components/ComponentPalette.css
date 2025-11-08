@@ -1,0 +1,132 @@
+/* Dark theme for component palette */
+.component-palette {
+  width: 300px;
+  background: linear-gradient(180deg, #0b1014 0%, #0f1518 100%);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+  padding: 14px;
+  font-family: Inter, Roboto, Arial, sans-serif;
+  color: #e6eef8;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.palette-header {
+  padding: 1.4rem 1rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  background: linear-gradient(135deg, rgba(124,92,255,0.16) 0%, rgba(6,182,212,0.12) 100%);
+  color: #fff;
+  border-radius: 8px;
+}
+
+.palette-header h3 { margin: 0 0 0.25rem 0; font-size: 1.15rem; color: #fff; }
+.palette-subtitle { margin: 0; font-size: 0.85rem; opacity: 0.85; color: rgba(230,238,248,0.9); }
+
+.palette-items { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+
+.palette-item {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+  border-radius: 10px;
+  transition: background .12s ease, transform .06s ease;
+  position: relative;
+  cursor: grab;
+  box-shadow: 0 6px 16px rgba(2,6,23,0.5);
+  z-index: 1;
+  border: 1px solid rgba(255,255,255,0.02);
+  border-left: 4px solid transparent; /* moved after border so it overrides the left side */
+  overflow: visible; /* allow panel to render outside the item vertically */
+}
+
+/* when open, stack content vertically so the subtype panel becomes part of the document flow */
+.palette-item.open {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* make the right-side area span full width when open so the inline selection sits above the panel */
+.palette-item.open .palette-item-right {
+  width: 100%;
+  display: block;
+  margin-top: 8px; /* small spacing between left info row and the right area */
+}
+
+/* place the subtype panel as part of the flow when the item is open so it pushes following items down */
+.palette-item.open .subtype-panel {
+  position: static; /* in-flow */
+  left: auto;
+  top: auto;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 8px;
+  z-index: 1;
+}
+
+/* inline selected text (on the item) */
+.subtype-selected-inline {
+  font-size:13px;
+  color:#0b1220;
+  background: linear-gradient(180deg,#ffd54f,#ffda7a);
+  padding:6px 10px;
+  border-radius:8px;
+  border: none;
+  font-weight:700;
+}
+
+/* dropdown / subtype panel - moved to appear below the palette item to avoid horizontal scrolling */
+.subtype-panel {
+  position:absolute;
+  left: 0; /* align with the palette item */
+  top: calc(100% + 8px); /* appear below the item */
+  width: 100%; /* keep it inside the palette width */
+  box-sizing: border-box;
+  max-height: 360px;
+  background: linear-gradient(180deg, #0b0f12, #0f1417);
+  border-radius: 12px;
+  box-shadow: 0 18px 48px rgba(2,6,23,0.7);
+  border: 1px solid rgba(255,255,255,0.04);
+  overflow: hidden;
+  z-index: 9999;
+  padding: 10px;
+  color: #e6eef8;
+}
+
+/* list inside panel */
+.subtype-list-panel {
+  list-style:none; margin:0; padding:4px; overflow-y:auto; max-height:320px;
+}
+
+.subtype-panel-item {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:10px; padding:12px; border-radius:10px; cursor:pointer; transition: background .08s ease;
+  border: 1px solid transparent; margin-bottom:8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.005), transparent);
+}
+.subtype-panel-item:hover {
+  background: linear-gradient(180deg, rgba(124,92,255,0.06), rgba(6,182,212,0.02));
+  border-color: rgba(124,92,255,0.08);
+}
+.subtype-panel-item.selected {
+  background: linear-gradient(180deg, rgba(124,92,255,0.12), rgba(6,182,212,0.06));
+  border-color: rgba(124,92,255,0.14);
+  font-weight:700;
+}
+
+.sp-left { flex:1; min-width:0; }
+.sp-title { font-size:13px; font-weight:700; color:#eef2ff; }
+.sp-heuristics { font-size:12px; color:rgba(230,238,248,0.7); margin-top:6px; line-height:1.25; }
+
+/* check icon */
+.subtype-check { color: #bfe6ff; font-size:16px; margin-left:8px; }
+
+.subtype-loading { padding:12px; color:rgba(230,238,248,0.6); font-size:13px; }
+.palette-footer { margin-top:12px; font-size:12px; color:rgba(230,238,248,0.65); }
+
+/* responsive */
+@media (max-width:900px) {
+  .component-palette { width: 260px; }
+  .subtype-panel { left: 0; width: 100%; }
+}

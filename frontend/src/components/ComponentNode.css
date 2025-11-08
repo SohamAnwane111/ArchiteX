@@ -1,0 +1,289 @@
+/* filepath: c:\Users\ASUS\Downloads\Sysetemdesign repo\system-design-autocad\frontend\src\components\ComponentNode.css */
+/* Dark / hand-drawn style for nodes */
+
+.component-node {
+  width: 140px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  font-family: Inter, Roboto, 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* rough frame using multiple box-shadows + border to look hand-sketched */
+.sketch-frame {
+  width: 130px;
+  height: 110px;
+  background: linear-gradient(180deg, rgba(10,12,16,0.88), rgba(20,24,30,0.92));
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow:
+    0 2px 0 rgba(255,255,255,0.02) inset,
+    -2px 2px 0 rgba(0,0,0,0.6),
+    3px 4px 14px rgba(2,6,23,0.45);
+  border: 2px solid rgba(255,255,255,0.04);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-0.6deg); /* slight slant for sketch feel */
+}
+
+/* hand-drawn border effect */
+.sketch-frame::before,
+.sketch-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+.sketch-frame::before {
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.02), -3px 3px 0 rgba(255,255,255,0.01);
+  transform: translate(2px, -1px) rotate(-0.5deg);
+}
+.sketch-frame::after {
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.35);
+  transform: translate(-2px, 2px) rotate(0.8deg);
+}
+
+/* icon circle */
+.sketch-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(255,255,255,0.02));
+  border: 2px dashed rgba(255,255,255,0.04);
+  box-shadow: -2px 2px 0 rgba(0,0,0,0.5);
+}
+
+/* icon styles: either white (real) or yellow (preview) */
+.component-icon {
+  width: 28px;
+  height: 28px;
+}
+.icon-light { color: #ffffff; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.6)); }
+.icon-accent { color: #ffd54f; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.6)); }
+
+/* subtype pill under icon */
+.subtype-pill {
+  margin-top: 0;
+  background: rgba(255,255,255,0.04);
+  color: #ffe;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #ffd54f;
+  border: 1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset;
+  margin-bottom: 8px;
+}
+
+/* label below subtype */
+.node-label {
+  font-size: 13px;
+  color: #ffffff;
+  font-weight: 800;
+  text-transform: none;
+  text-align: center;
+  margin-top: 2px;
+  color: rgba(255,255,255,0.92);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.6);
+}
+
+/* preview variant: slightly higher contrast/tilt, yellow icon */
+.component-node--preview .sketch-frame {
+  transform: rotate(-1.6deg) scale(1.02);
+  background: linear-gradient(180deg, rgba(18,22,28,0.96), rgba(26,30,36,0.98));
+}
+.component-node--preview .sketch-frame::before { transform: translate(3px, -2px) rotate(-1.6deg); }
+.component-node--preview .subtype-pill { color: #ffd54f; background: rgba(255,213,79,0.06); }
+
+/* real node variant: white icon */
+.component-node--real .subtype-pill { color: #ffffff; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.03); }
+
+/* make node feel hand-drawn by slight wiggle on hover */
+.component-node:hover .sketch-frame {
+  transform: rotate(-0.2deg) scale(1.03);
+  transition: transform 180ms ease;
+}
+
+/* small responsive fix for react-flow minimap/zoom */
+.component-node,
+.sketch-frame { box-sizing: border-box; }
+
+/* Minimal icon node — polished, dark-friendly, small sketch flourish */
+
+/* container used by react-flow node */
+.component-node-icon {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  width:auto;
+  padding:6px;
+  pointer-events:all;
+  user-select:none;
+}
+
+/* circular icon plate */
+.sketchy-icon-wrap {
+  width:64px;
+  height:64px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  margin-bottom:8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.03);
+  box-shadow: 0 8px 22px rgba(2,6,23,0.55), inset 0 1px 0 rgba(255,255,255,0.02);
+  transform: rotate(-2deg);
+}
+
+/* hand-drawn effect: two offset rings */
+.sketchy-icon-wrap::before,
+.sketchy-icon-wrap::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  pointer-events:none;
+}
+.sketchy-icon-wrap::before{
+  border:2px dashed rgba(255,255,255,0.03);
+  transform: translate(-3px,2px) rotate(-2deg);
+  opacity:0.85;
+}
+.sketchy-icon-wrap::after{
+  border:1px solid rgba(255,255,255,0.02);
+  transform: translate(2px,-2px) rotate(1deg);
+}
+
+/* icon SVG */
+.node-icon {
+  width:34px;
+  height:34px;
+  z-index:2;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.6));
+}
+
+/* white for placed nodes */
+.component-node-icon.real .node-icon { color: #ffffff; }
+
+/* bright accent for previews */
+.component-node-icon.preview .node-icon { color: var(--accent-3); }
+
+/* subtype label */
+.subtype-text {
+  font-size:11px;
+  font-weight:800;
+  color:var(--accent-3);
+  text-transform:uppercase;
+  letter-spacing:0.6px;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.6);
+}
+
+/* connection handles (top & bottom) */
+.node-handle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.09);
+  display: block;
+  box-shadow: 0 6px 14px rgba(2,6,23,0.55);
+  z-index: 40;
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+
+/* Top handle sits a bit above the icon and aligned center */
+.node-handle-top {
+  transform: translateY(-8px);
+}
+
+/* Bottom handle sits a bit below the subtype text */
+.node-handle-bottom {
+  transform: translateY(8px);
+}
+
+/* Visual states: real nodes use white handles, preview nodes use accent (gold) */
+.component-node-icon.real .node-handle {
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.92));
+  border-color: rgba(0,0,0,0.6);
+}
+.component-node-icon.preview .node-handle {
+  background: linear-gradient(180deg, rgba(255,213,79,0.98), rgba(255,213,79,0.92));
+  border-color: rgba(0,0,0,0.45);
+}
+
+/* subtle hover feedback for handles */
+.node-handle:hover {
+  transform: scale(1.18);
+  box-shadow: 0 10px 22px rgba(2,6,23,0.6);
+}
+
+/* Ensure React Flow handles are visible (override any previous hide rules) */
+.react-flow__handle {
+  display: block !important;
+  width: 20px !important;
+  height: 20px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 50% !important;
+  box-shadow: none !important;
+}
+
+/* custom visible circular handle visuals */
+.node-handle {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  z-index: 40;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* visible ring for top/bottom */
+.node-handle::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display:block;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.6);
+}
+
+/* Top / Bottom placement */
+.node-handle-top { top: -10px; }
+.node-handle-bottom { bottom: -10px; }
+
+/* Real vs preview handle colors */
+.component-node-icon.real .node-handle::after {
+  background: linear-gradient(180deg,#ffffff,#f0f0f0);
+  border: 1px solid rgba(0,0,0,0.45);
+}
+.component-node-icon.preview .node-handle::after {
+  background: linear-gradient(180deg,#ffd54f,#ffcf5a);
+  border: 1px solid rgba(0,0,0,0.35);
+}
+
+/* hover feedback */
+.node-handle:hover { transform: translateX(-50%) scale(1.25); }
+
+/* keep node container position relative so handles position correctly */
+.component-node-icon { position: relative; }
