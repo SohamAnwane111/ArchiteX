@@ -63,9 +63,11 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
   // previewedSubtype shape: { componentType: 'DATABASE', subtype: { id, label, heuristics, ... } }
 
   const [architectureId, setArchitectureId] = useState(null);
-  const [architectureName, setArchitectureName] = useState('My Architecture');
+  const [architectureName, setArchitectureName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCreatingArchitecture, setIsCreatingArchitecture] = useState(false);
+  const [architectureCreated, setArchitectureCreated] = useState(false); // Track if architecture was created;
+  const nameJustLoaded = useRef(false); // Track if name was just loaded from backend
   const [linkTypes, setLinkTypes] = useState([]);
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [evaluation, setEvaluation] = useState(null);
@@ -96,18 +98,21 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
 
   const createNewArchitecture = useCallback(async () => {
     // Prevent duplicate creation
-    if (isCreatingArchitecture || architectureId) {
+    if (isCreatingArchitecture || architectureCreated || architectureId) {
       return;
     }
-    
+
     setIsCreatingArchitecture(true);
     try {
-      const nameToSend = architectureName && architectureName.trim() ? architectureName.trim() : 'My Architecture';
+      // Use user-provided name or default to 'Untitled Architecture'
+      const nameToSend = architectureName && architectureName.trim() ? architectureName.trim() : 'Untitled Architecture';
       console.log('Creating architecture with name:', nameToSend);
       const response = await architectureAPI.create({ name: nameToSend });
-      console.log('Architecture created, response name:', response.data.name);
+      console.log('Architecture created, response:', response.data);
       setArchitectureId(response.data.id);
       setArchitectureName(response.data.name);
+      setArchitectureCreated(true); // Mark as created
+      nameJustLoaded.current = true; // Mark that name was just set from backend
       showNotification('Architecture created successfully', 'success');
     } catch (error) {
       showNotification('Failed to create architecture', 'error');
@@ -115,7 +120,7 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
     } finally {
       setIsCreatingArchitecture(false);
     }
-  }, [architectureName, showNotification, isCreatingArchitecture, architectureId]);
+  }, [architectureName, showNotification, isCreatingArchitecture, architectureCreated, architectureId]);
 
   const loadArchitecture = useCallback(async (architectureId) => {
     try {
@@ -184,6 +189,7 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
       setEdges(loadedEdges);
       setArchitectureId(architecture.id);
       setArchitectureName(architecture.name);
+      nameJustLoaded.current = true; // Mark that name was just loaded from backend
 
       showNotification('Architecture loaded successfully', 'success');
     } catch (error) {
@@ -207,18 +213,20 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
     }
   }, [loadArchitecture, showNotification]);
 
-  // Initialize: load link types and create architecture only once on mount
+  // Initialize: load link types only once on mount
   useEffect(() => {
     loadLinkTypes();
   }, [loadLinkTypes]);
 
   // Create new architecture only if no solution is being loaded and no architecture exists
+  // Use a ref to ensure this only runs once
+  const architectureInitialized = useRef(false);
   useEffect(() => {
-    if (!solutionArchitectureId && !architectureId && !isCreatingArchitecture) {
+    if (!solutionArchitectureId && !architectureId && !isCreatingArchitecture && !architectureInitialized.current) {
+      architectureInitialized.current = true;
       createNewArchitecture();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run only once on mount
+  }, [solutionArchitectureId, architectureId, isCreatingArchitecture, createNewArchitecture]);
 
   // Load solution architecture when solutionArchitectureId changes
   useEffect(() => {
@@ -229,25 +237,47 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
 
   // Update architecture name when it changes (debounced)
   useEffect(() => {
-    if (!architectureId) return; // Don't update if architecture hasn't been created yet
-    // Remove the check for 'My Architecture' - always update if name changes
-    // The user might want to keep "My Architecture" as the name
+    if (!architectureId) {
+      console.log('Skipping name update - no architecture ID');
+      return;
+    }
+
+    if (!architectureName || architectureName.trim() === '') {
+      console.log('Skipping name update - empty name');
+      return;
+    }
 
     const timeoutId = setTimeout(async () => {
+      // Check flag at the time of actual update, not at effect setup
+      if (nameJustLoaded.current) {
+        console.log('Skipping name update - name was just loaded from backend');
+        nameJustLoaded.current = false; // Reset the flag
+        return;
+      }
+
       try {
-        const nameToUpdate = architectureName && architectureName.trim() ? architectureName.trim() : 'My Architecture';
-        console.log('Updating architecture name to:', nameToUpdate);
+        const nameToUpdate = architectureName.trim();
+        console.log('=== UPDATING ARCHITECTURE NAME ===');
+        console.log('Architecture ID:', architectureId);
+        console.log('Current name in state:', architectureName);
+        console.log('Name to update:', nameToUpdate);
+
         const response = await architectureAPI.update(architectureId, { name: nameToUpdate });
-        console.log('Architecture name updated, response name:', response.data.name);
-        // Silently update - no notification to avoid spam
+
+        console.log('Update response:', response.data);
+        console.log('Response name:', response.data.name);
+        console.log('=================================');
+
+        // Show success notification
+        showNotification('Architecture name updated', 'success');
       } catch (error) {
         console.error('Failed to update architecture name:', error);
-        // Don't show error notification for name updates to avoid spam
+        showNotification('Failed to update architecture name', 'error');
       }
-    }, 500); // Wait 500ms after user stops typing (reduced from 1000ms)
+    }, 1000); // Wait 1 second after user stops typing
 
     return () => clearTimeout(timeoutId);
-  }, [architectureName, architectureId]);
+  }, [architectureName, architectureId, showNotification]);
 
   // Handler passed to ComponentPalette so it can notify App about a preview/selection
   const handlePreviewSubtype = useCallback((componentType, subtype) => {
@@ -543,11 +573,11 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
       if (aiMode && questionData) {
         // AI Mode: Call the AI evaluation endpoint
         showNotification('Evaluating with AI...', 'info', 6000); // Longer duration for AI evaluation
-        
+
         // Fetch the architecture data
         const archResponse = await architectureAPI.getById(architectureId);
         const architecture = archResponse.data;
-        
+
         // Build architecture object similar to MongoDB structure
         const architectureData = {
           id: architecture.id,
@@ -555,10 +585,10 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
           components: architecture.components || [],
           links: architecture.links || [],
         };
-        
+
         // Prepare question text
         const questionText = `${questionData.qtitle}\n\n${questionData.qdes || ''}`;
-        
+
         // Call AI endpoint
         const aiResponse = await fetch('https://tusharsinghbaghel-synhack.hf.space/evaluate', {
           method: 'POST',
@@ -570,13 +600,13 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
             architecture: architectureData,
           }),
         });
-        
+
         if (!aiResponse.ok) {
           throw new Error(`AI evaluation failed: ${aiResponse.statusText}`);
         }
-        
+
         const aiData = await aiResponse.json();
-        
+
         // Transform AI response to match EvaluationPanel format
         const transformedEvaluation = {
           overallScore: Object.values(aiData.heuristic_scores || {}).reduce((sum, val) => sum + val, 0) / (Object.keys(aiData.heuristic_scores || {}).length || 1),
@@ -587,7 +617,7 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
           valid: true,
           isAiMode: true, // Flag to indicate AI mode response
         };
-        
+
         setEvaluation(transformedEvaluation);
         setShowEvaluation(true);
         showNotification('Architecture evaluated successfully with AI', 'success');
@@ -665,10 +695,16 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
 
         // First, update the architecture name to ensure it's current
         try {
-          const nameToSubmit = architectureName && architectureName.trim() ? architectureName.trim() : 'My Architecture';
-          console.log('Updating architecture name before submit to:', nameToSubmit);
-          const updateResponse = await architectureAPI.update(architectureId, { name: nameToSubmit });
-          console.log('Name updated before submit, response name:', updateResponse.data.name);
+          if (architectureName && architectureName.trim()) {
+            const nameToSubmit = architectureName.trim();
+            console.log('Updating architecture name before submit to:', nameToSubmit);
+            const updateResponse = await architectureAPI.update(architectureId, { name: nameToSubmit });
+            console.log('Name updated before submit. Response name:', updateResponse.data.name);
+            // Update local state to match what was saved
+            setArchitectureName(updateResponse.data.name);
+          } else {
+            console.warn('Architecture name is empty, using backend default');
+          }
         } catch (updateError) {
           console.warn('Failed to update architecture name before submit:', updateError);
           // Continue with submit even if name update fails
@@ -681,7 +717,7 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
         });
 
         showNotification('Architecture submitted successfully!', 'success');
-        
+
         // Reload the page after a short delay to show the success message
         setTimeout(() => {
           window.location.reload();
@@ -694,12 +730,12 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
     } else {
       // Fallback: if props not provided, show error
       showNotification(
-        userId 
-          ? 'Question ID is required to submit' 
-          : questionId 
-          ? 'User ID is required to submit' 
-          : 'User ID and Question ID are required to submit',
-        'error'
+          userId
+              ? 'Question ID is required to submit'
+              : questionId
+                  ? 'User ID is required to submit'
+                  : 'User ID and Question ID are required to submit',
+          'error'
       );
     }
   };
@@ -770,9 +806,9 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
 
   return (
       <div className="app">
-        <ToastNotification 
-          notification={notification} 
-          onClose={() => setNotification(null)} 
+        <ToastNotification
+          notification={notification}
+          onClose={() => setNotification(null)}
         />
 
         <div className="app-header">
@@ -782,13 +818,65 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
                 type="text"
                 value={architectureName}
                 onChange={(e) => setArchitectureName(e.target.value)}
+                onKeyDown={async (e) => {
+                  // Save name immediately when user presses Enter
+                  if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevent form submission if in a form
+
+                    if (!architectureId) {
+                      console.error('Cannot save name - no architecture ID');
+                      showNotification('No architecture to save name for', 'error');
+                      return;
+                    }
+
+                    if (!architectureName || !architectureName.trim()) {
+                      console.error('Cannot save name - name is empty');
+                      showNotification('Please enter a name', 'error');
+                      return;
+                    }
+
+                    try {
+                      const nameToUpdate = architectureName.trim();
+                      console.log('Saving architecture name on Enter:', nameToUpdate);
+                      console.log('Architecture ID:', architectureId);
+
+                      const response = await architectureAPI.update(architectureId, { name: nameToUpdate });
+
+                      console.log('Name saved successfully. Response:', response.data);
+                      showNotification('Architecture name saved', 'success');
+                      e.target.blur(); // Remove focus from input
+                    } catch (error) {
+                      console.error('Failed to save name on Enter:', error);
+                      console.error('Error details:', error.response?.data || error.message);
+                      const errorMsg = error.response?.data?.error || error.message || 'Unknown error';
+                      showNotification(`Failed to save name: ${errorMsg}`, 'error');
+                    }
+                  }
+                }}
+                onBlur={async () => {
+                  // Save name immediately when user clicks away from input
+                  if (architectureId && architectureName && architectureName.trim()) {
+                    try {
+                      const nameToUpdate = architectureName.trim();
+                      console.log('Saving architecture name on blur:', nameToUpdate);
+                      const response = await architectureAPI.update(architectureId, { name: nameToUpdate });
+                      console.log('Name saved successfully on blur. Response:', response.data);
+                    } catch (error) {
+                      console.error('Failed to save name on blur:', error);
+                      console.error('Error details:', error.response?.data || error.message);
+                    }
+                  }
+                }}
                 className="architecture-name-input"
-                placeholder="Architecture name"
+                placeholder="Enter architecture name"
             />
-            <button 
-              onClick={submitArchitecture} 
-              className="btn btn-success"
-              disabled={isSubmitting}
+            <button onClick={validateArchitecture} className="btn btn-secondary">
+              Validate
+            </button>
+            <button
+                onClick={submitArchitecture}
+                className="btn btn-success"
+                disabled={isSubmitting}
             >
               {isSubmitting ? 'Submitting...' : 'Submit'}
             </button>
@@ -828,22 +916,22 @@ function App({ questionId: propQuestionId = null, userId: propUserId = null, onL
               >
                 <Background />
                 <Controls />
-                <MiniMap 
-                  nodeColor={(node) => {
-                    // Use bright purple accent color for nodes in minimap for better visibility
-                    return '#667eea';
-                  }}
-                  nodeStrokeColor={(node) => {
-                    return '#ffffff';
-                  }}
-                  nodeStrokeWidth={2}
-                  maskColor="rgba(102, 126, 234, 0.2)"
-                  maskStrokeColor="rgba(102, 126, 234, 0.8)"
-                  style={{
-                    backgroundColor: 'rgba(11, 15, 20, 0.95)',
-                  }}
-                  pannable={true}
-                  zoomable={true}
+                <MiniMap
+                    nodeColor={(node) => {
+                      // Use bright purple accent color for nodes in minimap for better visibility
+                      return '#667eea';
+                    }}
+                    nodeStrokeColor={(node) => {
+                      return '#ffffff';
+                    }}
+                    nodeStrokeWidth={2}
+                    maskColor="rgba(102, 126, 234, 0.2)"
+                    maskStrokeColor="rgba(102, 126, 234, 0.8)"
+                    style={{
+                      backgroundColor: 'rgba(11, 15, 20, 0.95)',
+                    }}
+                    pannable={true}
+                    zoomable={true}
                 />
                 <Panel position="top-left" className="canvas-info">
                   <div className="info-item">

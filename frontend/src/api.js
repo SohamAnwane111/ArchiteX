@@ -13,24 +13,24 @@ const api = axios.create({
 
 // Add request interceptor to handle CORS
 api.interceptors.request.use(
-  (config) => {
-    // Add any additional headers if needed
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
+    (config) => {
+      // Add any additional headers if needed
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
 );
 
 // Add response interceptor to handle errors
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 0 || error.code === 'ERR_NETWORK') {
-      console.error('CORS or Network Error:', error);
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 0 || error.code === 'ERR_NETWORK') {
+        console.error('CORS or Network Error:', error);
+      }
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
-  }
 );
 
 // Component APIs
@@ -66,6 +66,7 @@ export const architectureAPI = {
   getAll: () => api.get('/architecture'),
   getById: (id) => api.get(`/architecture/${id}`),
   create: (data) => api.post('/architecture', data),
+  update: (id, data) => api.put(`/architecture/${id}`, data),
   delete: (id) => api.delete(`/architecture/${id}`),
   addComponent: (id, component) => api.post(`/architecture/${id}/components`, component),
   addLink: (id, link) => api.post(`/architecture/${id}/links`, link),
