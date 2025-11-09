@@ -619,8 +619,8 @@ This project is licensed under the ISC License.
 
 ## 👥 Authors
 
-- **Your Team Name** - System Design Platform
-- Contact: [your-email@example.com](mailto:your-email@example.com)
+- **Team** - HereForTheFood 😋
+- Contact: [sohamanwane111@gmail.com](mailto:sohamanwane111@gmail.com)
 
 ---
 
